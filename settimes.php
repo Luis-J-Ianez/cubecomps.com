@@ -149,7 +149,6 @@ function getAverageAndBest(&$average,&$best)
 }
 
 require_once "lib_ref.php";
-
 $_GETcomp_id = _GET_num("comp_id"); 
 $_GETcat_id = _GET_num("cat_id"); 
 $_GETround = _GET_num("round");

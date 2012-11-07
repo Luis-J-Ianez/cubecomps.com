@@ -4,9 +4,11 @@
  * unexpected or even harmful results.
  */
 require_once "inc_private.php";
-if (!array_key_exists("HTTP_REFERER", $_SERVER) || !preg_match("~//(www\\.|test\\.|admin\\.)?".DOMAIN."~i",$_SERVER["HTTP_REFERER"]))
-{
-	$txt = <<<TEXT
+require_once "lib.php";
+
+if (!refererMatchesHost()) : 
+?>
+=======
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -17,11 +19,9 @@ if (!array_key_exists("HTTP_REFERER", $_SERVER) || !preg_match("~//(www\\.|test\
    </head>
    <body style="font-family:arial;">
   	<h1 style="color:#0a328c;font-size:1.0em;">SESSION EXPIRED</h1>
-
 	<p style="font-size:0.8em;">Please <a href="/">re-login</a>.</p>
    </body>
   </html>
-TEXT;
-	exit($txt);
-}
-?>
+<?php
+    exit;
+endif;
