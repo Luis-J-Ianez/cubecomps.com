@@ -3,15 +3,13 @@
  * This is because some pages take actions over the database (or where else), and if entered in error, they could cause
  * unexpected or even harmful results.
  */
-if(!isset($_SESSION)) {
-	session_start();
-}
+if(!isset($_SESSION)) session_start();
 require_once "inc_private.php";
-if (!$_SESSION["c_admin"] || !array_key_exists("HTTP_REFERER", $_SERVER) || !preg_match("~//(www\\.|test\\.|admin\\.)?".DOMAIN."~i",$_SERVER["HTTP_REFERER"]))
+require_once "lib.php";
+if (!$_SESSION["c_admin"] || !refererMatchesHost())
 {
 	$txt = <<<TEXT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
       <title>Session expired!</title>

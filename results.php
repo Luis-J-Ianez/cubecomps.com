@@ -110,7 +110,7 @@ else
 if (!isset($lastopenrounds[$cat_id]) || $lastopenrounds[$cat_id]<$round)
 {
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html>
 <head>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>
@@ -119,20 +119,13 @@ if (!isset($lastopenrounds[$cat_id]) || $lastopenrounds[$cat_id]<$round)
 	body {font-family:arial,sans-serif;font-size:14px;background-color:<?=$color?>;color:#FFFFCC;}
 	a {color:black;font-weight:bold;text-decoration:none;}
 	a:hover {color:#CCFF00;}
-	table.t_tabs {font-size:30px;border-style:none;color:#CCFF00;}
-	table.t_tabs td {font-weight:bold;padding:0 20px;}
-	td.t_sel:hover {background-color:<?=$light_color?>;}
 </style>
 </head>
 <body>
 <?
-	if (@$_SESSION["c_admin"])
-	{
-?>
-<table class=t_tabs><tr><td class=t_sel><a href='events.php'>EVENTS</a></td><td class=t_sel><a href='competitors.php'>COMPETITORS</a></td><td>RESULTS</td><td class=t_sel><a href='misc.php'>MISC</a></td></tr></table>
-<?
-	}
-	else
+	require_once "lib_menu.php";
+	echoMenu(2);
+	if (!@$_SESSION["c_admin"])
 		echo "<br><br><br>";
 ?>
 <H1><center>No rounds yet open!</center><H1>
@@ -142,6 +135,18 @@ if (!isset($lastopenrounds[$cat_id]) || $lastopenrounds[$cat_id]<$round)
 }
 else
 {
+	if ($round!=$lastopenrounds[$cat_id])
+	{
+		$result = strict_query("SELECT comp_id FROM $regstable WHERE cat_id=? AND round=?", array($cat_id,$round+1));
+		$actuallyClassified = array();
+		while ($rowac=cased_mysql_fetch_array($result))
+			$actuallyClassified[$rowac["comp_id"]] = true;
+		$rowac = null;
+		$result = null;
+	}
+	else
+		$actuallyClassified = null;
+	
 	$event = strict_query("SELECT * FROM $eventstable WHERE id=?", array($cat_id));
 	$category = strict_query("SELECT * FROM categories WHERE id=?", array($cat_id));
 	$timetype = cased_mysql_result($category,0,"timetype");
@@ -181,7 +186,7 @@ else
 	{
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html>
 <head>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>
@@ -190,13 +195,10 @@ else
 	body {font-family:arial,sans-serif;font-size:14px;background-color:<?=$color?>;color:#2a3837;}
 	#container {display:inline-block;overflow-y:auto; overflow-x:hidden;}
 	table.TH, table.TD {color:black;font-size:12px;}
-	table.TH, #container {-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
+	table.TH, #container {-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
 	th {color:#2a3837;background-color:<?=$light_color?>;}
 	a {color:black;font-weight:bold;text-decoration:none;}
 	a:hover {color:#CCFF00;}
-	table.t_tabs {font-size:30px;border-style:none;color:#CCFF00;}
-	table.t_tabs td {font-weight:bold;padding:0 20px;}
-	td.t_sel:hover {background-color:<?=$light_color?>;}
 	.row_odd {background-color:#fff;}
 	.row_odd:hover {background-color:#bbf;}
 	.row_even {background-color:#ddd;}
@@ -218,7 +220,6 @@ else
 		echo "<body onload='doResize();";
 		if ($round!=$lastopenrounds[$cat_id])
 			echo "alert(\"WARNING: this round is not the last one open in this event!\\r\\nChange existing results on your own risk.\");";
-		// echo "' onresize='docResize();' onunload='if(I.changed) alert(\"Warning!\\r\\n\\nYour last changes are going to be discarded because you navigated off this page prior to submit them.\")'>\r\n<table class=t_tabs><tr><td style='font-size:20px;'>".cased_mysql_result($category,0,"name")." - round ".$round;
 		echo "' onresize='docResize();' onunload='if(I.changed) alert(\"Warning!\\r\\n\\nYour last changes are going to be discarded because you navigated off this page prior to submit them.\")'>\r\n<table class=t_tabs><tr><td style='font-size:20px;'>".cased_mysql_result($category,0,"name")." - ".roundString($round,$nrounds,$timelimit);
 		if ($timelimit) 
 			if (@$_SESSION["c_admin"])
@@ -226,23 +227,14 @@ else
 			else
 				echo " - cutoff ".formatTime($timelimit,1);
 		echo "</td>";
-		if (@$_SESSION["c_admin"])
-			echo "<td class=t_sel><a style='cursor:pointer;' onclick='gotoPage(\"events.php\");'>EVENTS</a></td><td class=t_sel><a style='cursor:pointer;' onclick='gotoPage(\"competitors.php\");'>COMPETITORS</a></td><td>RESULTS</td><td class=t_sel><a style='cursor:pointer;' onclick='gotoPage(\"misc.php\");'>MISC</a></td>";
+		//
+		require_once "lib_menu.php";
+		echoMenu(2,"gotoPage",true);		
+		//
 		echo "</tr></table>";
 ?>
 
 <script>
-
-var timerKA = setTimeout("keepAlive();",600000);
-
-function keepAlive()
-{
-	var req = createXMLHttpRequest();
-	req.open ("GET", "keepalive.php");
-	req.send (null);
-	//
-	timerKA = setTimeout("keepAlive();",600000);
-}
 
 var timerResize;
 
@@ -915,7 +907,7 @@ Inputs.prototype.letterCapture = function(ch)
 			}
 			this.changed = true;
 		}
-		else if (this.active==0 && ((ch>="A" && ch<="Z") || (ch>"¦")))
+		else if (this.active==0 && ((ch>="A" && ch<="Z") || (ch>"ï¿½")))
 			incSearch(ch);	
 		}
 }
@@ -1233,13 +1225,13 @@ Inputs.prototype.clear = function()
 		$timewidth = 156;
 		$tablewidth = ($timetype==3 ? $timewidth+$moveswidth*2+12 : $timewidth);
 ?>
-<table style='font-family:arial,sans serif; font-size:30px; width:<?=$tablewidth?>px; background-color:<?=$light_color?>; -moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>; padding:2px 0;'>
+<table style='font-family:arial,sans serif; font-size:30px; width:<?=$tablewidth?>px; background-color:<?=$light_color?>; -webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>; padding:2px 0;'>
 <tr><td id="input0" onclick="I.activate(0);" colspan=3>???</td></tr>
 <tr><td style='height:20px;font-size:14px;' colspan=3>
 <!-- name div -->
 <div id=name style='overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left;width:<?=$tablewidth?>px;'></div>
 <!-- incremental search div -->
-<div id=ISdiv style='position:fixed; width:200px; left:30px; background:white; border:2px solid <?=$color?>; font-size:12px; text-align:left;-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;padding:5px;display:none;'></div>
+<div id=ISdiv style='position:fixed; width:200px; left:30px; background:white; border:2px solid <?=$color?>; font-size:12px; text-align:left;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;padding:5px;display:none;'></div>
 <!---------------------------->
 </td></tr>
 
@@ -1349,11 +1341,12 @@ function openWLeft()
 		"JOIN $compstable ON ($regstable.comp_id=$compstable.id) ".
 		"WHERE $regstable.cat_id=? AND $regstable.round=? ORDER BY $timestable.t1 IS NULL, $timestable.average='', $timestable.average, $timestable.best, $compstable.name";
 	$list = strict_query($query, array($cat_id,$round));
-	$qualified = (
-		$round<4 && cased_mysql_result($event,0,"r".($round+1)) ?
-		cased_mysql_result($event,0,"r".($round+1)."_groupsize") :
-		3
-		);
+	if (!$actuallyClassified)
+		$qualified = (
+			$round<4 && cased_mysql_result($event,0,"r".($round+1)) ?
+			cased_mysql_result($event,0,"r".($round+1)."_groupsize") :
+			3
+			);
 	$classification = 0;
 	$count = 0;
 	$lasta = "";
@@ -1371,12 +1364,19 @@ function openWLeft()
 				$lasta = $row["average"];
 				$lastb = $row["best"];
 			}
-			if ($qualified > 0) // Elegible to proceed?
-			{
-				if ($row["best"] > "A") $qualified = -1;
-			}
 			echo "<td";
-			if ($classification && $classification<=$qualified) echo " style='background-color:#CCFF00;'";
+			if ($actuallyClassified)
+			{
+				if (array_key_exists($row["comp_id"],$actuallyClassified)) echo " style='background-color:#CCFF00;'";
+			}
+			else
+			{
+				if ($qualified > 0) // Elegible to proceed?
+				{
+					if ($row["best"] > "A") $qualified = -1;
+				}
+				if ($classification && $classification<=$qualified) echo " style='background-color:#CCFF00;'";
+			}
 			echo "><div class=col_cl><b>$classification</b></div></td><td><div class=col_cl>" .$row["comp_id"]. "</div></td><td><div class=col_nm><a style='cursor:pointer;' onclick='copyToEditor(".$row["comp_id"].")' title='click to copy results to the editor'>" .$row["name"]. "</a></div></td>";
 			for ($x=1;$x<=$times;$x++)
 				echo "<td class=td_tm><div id=res".$row["comp_id"]."_$x class=col_tm>".formatTime($row["t$x"])."</div></td>";
@@ -1476,14 +1476,24 @@ function openWLeft()
 				$lasta = $row["average"];
 				$lastb = $row["best"];
 			}
-			if ($qualified > 0) // Elegible to proceed?
+			if ($actuallyClassified)
 			{
-				if ($row["best"] > "A") $qualified = -1;
+				if (array_key_exists($row["comp_id"],$actuallyClassified))
+					$pdf->SetFillColor(204,255,0);
+				else
+					$pdf->SetFillColor(255);
 			}
-			if ($classification && $classification<=$qualified)
-				$pdf->SetFillColor(204,255,0);
 			else
-				$pdf->SetFillColor(255);
+			{
+				if ($qualified > 0) // Elegible to proceed?
+				{
+					if ($row["best"] > "A") $qualified = -1;
+				}
+				if ($classification && $classification<=$qualified)
+					$pdf->SetFillColor(204,255,0);
+				else
+					$pdf->SetFillColor(255);
+			}
 			$pdf->SetFont('','',10);
 			$pdf->Cell(8,5,$classification."",0,0,"R",true); // ."" is necessary; do not delete!
 			$X = $pdf->GetX();
@@ -1506,7 +1516,7 @@ function openWLeft()
 			$pdf->Ln();
 		}
 		$pdf->SetDisplayMode("fullpage","single");
-		$pdf->Output();
+		$pdf->Output(preg_replace("/\W/","",$_SESSION["c_name"])." - Results.pdf", "I");
 	}
 
 	IF (!$print)

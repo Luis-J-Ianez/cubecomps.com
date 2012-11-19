@@ -4,11 +4,11 @@
  * unexpected or even harmful results.
  */
 require_once "inc_private.php";
-if (!array_key_exists("HTTP_REFERER", $_SERVER) || !preg_match("~//(www\\.|test\\.|admin\\.)?".DOMAIN."~i",$_SERVER["HTTP_REFERER"]))
+require_once "lib.php";
+if (!refererMatchesHost())
 {
 	$txt = <<<TEXT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
       <title>Session expired!</title>

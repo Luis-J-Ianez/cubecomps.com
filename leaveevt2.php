@@ -8,7 +8,7 @@ function error($err)
 {
 	global $color, $light_color, $dark_color;
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE>Operation canceled</TITLE>
@@ -41,7 +41,7 @@ $result = strict_query("SELECT admin_pw FROM competitions WHERE id=".$_SESSION["
 if (cased_mysql_result($result,0,"admin_pw")!=$_POST["pw"])
 {
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE>Erroneous password</TITLE>
@@ -89,7 +89,7 @@ else
 
 sql_close();
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <HTML>
 <BODY onload='opener.location.reload();window.close();'>
 </BODY>

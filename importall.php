@@ -1,6 +1,6 @@
 <?
 require_once "lib.php";
-session_start();
+if(!isset($_SESSION)) session_start();
 require_once "lib_ref_admin.php";
 require_once "db.php";
 
@@ -12,7 +12,7 @@ $result = strict_query("SELECT admin_pw FROM competitions WHERE id=".$_SESSION["
 if (!$result || sql_num_rows($result)!=1 || cased_mysql_result($result,0,"admin_pw")!=$_POST["pw"])
 {
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE>Erroneous password</TITLE>
@@ -34,7 +34,7 @@ if (!$result || sql_num_rows($result)!=1 || cased_mysql_result($result,0,"admin_
 }
 
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>
@@ -324,8 +324,9 @@ for ($sn=1;$sn<$tsn;$sn++)
 		if (!isset($countries[$country])) error ("Unknown country ('$country') at cell C$i");
 		$countryid = $countries[$country];
 		$wcaid = $sheet->getCell("D$i")->getValue();
+		if (!$wcaid) $wcaid = "";
 		$competitor = strict_query("SELECT id FROM $compstable WHERE name=? AND country_id=? AND WCAid=?", array($name,$countryid,$wcaid));
-		if (sql_num_rows($competitor)!=1) error ("Unregistered competitor at line $i");
+		if (sql_num_rows($competitor)!=1) error ("Unregistered competitor at line $i - ('$name' - '$countryid' - '$wcaid')");
 		$competitorid = cased_mysql_result($competitor,0,"id");
 
 		if ($round==1) strict_query("UPDATE $compstable SET cat?='X' WHERE id=?", array($evtid,$competitorid));

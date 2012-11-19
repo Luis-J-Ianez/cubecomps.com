@@ -2,7 +2,7 @@
 require_once "lib.php";
 require_once "lib_ref.php";
 require_once "lib_post.php";
-session_start();
+if(!isset($_SESSION)) session_start();
 
 require_once "inc_private.php";
 

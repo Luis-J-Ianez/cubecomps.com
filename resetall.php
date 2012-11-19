@@ -1,5 +1,5 @@
 <?
-session_start();
+if(!isset($_SESSION)) session_start();
 require_once "lib_ref_admin.php";
 require_once "db.php";
 
@@ -19,7 +19,7 @@ if ($result && sql_num_rows($result)==1)
 		$light_color = "#b0c7b4";
 		$dark_color = "#0a1414";
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE>Erroneous password</TITLE>

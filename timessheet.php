@@ -179,7 +179,7 @@ if (($cat_id && $round) || $comp_id)
 			$ts->Timesheet($row["compid"], $compname, $row["catname"], ($comp_id?$row["round"]:$round.""), $t, $count);
 		}
 		$ts->SetDisplayMode("fullpage","single");
-		$ts->Output();
+		$ts->Output(preg_replace("/\W/","",$_SESSION["c_name"])." - Scorecards.pdf", "I");
 	}
 	elseif ($comp_id)
 		die("This competitor is not registered to any event or these events are not yet open");
@@ -206,7 +206,7 @@ elseif (array_key_exists("aofr",$_GET))
 		}
 	}
 	$ts->SetDisplayMode("fullpage","single");
-	$ts->Output();
+	$ts->Output(preg_replace("/\W/","",$_SESSION["c_name"])." - Scorecards.pdf", "I");
 }
 else
 {
@@ -214,7 +214,7 @@ else
 	for ($x=1;$x<=4;$x++)
 		$ts->Timesheet("","","","",5,0);
 	$ts->SetDisplayMode("fullpage","single");
-	$ts->Output();
+	$ts->Output(preg_replace("/\W/","",$_SESSION["c_name"])." - Scorecards.pdf", "I");
 }
 sql_close();
 ?>

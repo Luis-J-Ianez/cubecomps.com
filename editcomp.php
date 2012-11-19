@@ -22,7 +22,7 @@ $dark_color = "#0a1414";
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <style type="text/css">
 	body {font-family:arial,sans-serif;font-size:14px;background-color:<?=$color?>;}
-	table {color:black;font-size:12px;-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;background-color:<?=$light_color?>;}
+	table {color:black;font-size:12px;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;background-color:<?=$light_color?>;}
 	td {padding:0 5px;}
 	td.caption {color:#2a3837;text-align:right;}
 </style>

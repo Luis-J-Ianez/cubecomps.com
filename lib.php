@@ -1,5 +1,6 @@
 <?php
 error_reporting(E_ALL);
+require_once "inc_private.php";
 
 /*
 This library encompasses all the database functions.  The system allows three
@@ -45,7 +46,7 @@ function cased_mysql_result(&$result, $row, $field)
 	return $result[$row][$field];
 }
 
-function strict_query($query, $array = null) 
+function strict_query($query, $array = null, $H = null) 
 {
 	if (SQL_DBTYPE == DBTYPE_MYSQL)
 	{
@@ -61,12 +62,36 @@ function strict_query($query, $array = null)
 	}
 	else
 	{
-		global $DBH;
-		$sth = $DBH->prepare ($query);
+		/* On preparing the statament, H2 makes column name checking. Some of them come like 'name?' and it fails.
+		 * This 'if' prevents this situation by replacing the '?' (in column names only!) previous to preparation.
+		 */
+		if (SQL_DBTYPE == DBTYPE_H2)
+		{
+			$narray = array();
+			$offset = 0;
+			$x = 0;
+			while (($p = strpos($query,"?",$offset)) !== false)
+			{
+				if ($p > 0 && preg_match('/[a-z_]/',substr($query,$p-1,1)))
+					$query = substr($query,0,$p) . $array[$x] . substr($query,$p+1);
+				else
+					$narray[count($narray)] = $array[$x];
+				$offset = $p+1;
+				$x++;
+			}
+			$array = $narray;
+		}
+		
+		if (!$H)
+		{
+			global $DBH;
+			$H = $DBH;
+		}
+		$sth = $H->prepare ($query);
 		if (!$sth)
 			die("Could not prepare statement<br>\n" .
-				"errorCode: " . $DBH->errorCode () . "<br>\n" .
-				"errorInfo: " . join (", ", $DBH->errorInfo ()));
+				"errorCode: " . $H->errorCode () . "<br>\n" .
+				"errorInfo: " . join (", ", $H->errorInfo ()));
 		for ($x=0;$x<count($array);$x++)
 			$sth->bindParam($x+1, $array[$x], (is_int($array[$x]) ? PDO::PARAM_INT : PDO::PARAM_STR));
 		if (!$sth->execute ())
@@ -94,13 +119,17 @@ function sql_close()
 		$DBH = null;	
 }
 
-function sql_insert_id()
+function sql_insert_id($H = null)
 {
-	global $DBH;
+	if (!$H)
+	{
+		global $DBH;
+		$H = $DBH;
+	}
 	if (SQL_DBTYPE == DBTYPE_MYSQL)
 		return mysql_insert_id();
 	else
-		return (int)($DBH->lastInsertId());
+		return (int)($H->lastInsertId());
 }
 
 function sql_data_reset(&$result)
@@ -112,4 +141,12 @@ function sql_data_reset(&$result)
 		reset($result);
 }
 
+function refererMatchesHost()
+{
+	if (!isset($_SERVER['HTTP_REFERER']))
+		return false;
+	$referer = $_SERVER['HTTP_REFERER'];
+	$host = preg_quote($_SERVER['HTTP_HOST']);
+	return preg_match("+^(http://)?$host+", $referer);
+}
 ?>

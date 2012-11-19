@@ -1,10 +1,9 @@
 <?
-session_start();
-if (!$_SESSION["c_admin"])
+if(!isset($_SESSION)) session_start();
+if (!array_key_exists("c_admin",$_SESSION) || !$_SESSION["c_admin"])
 {
 	$txt = <<<TEXT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
    <head>
       <title>Session expired!</title>

@@ -1,5 +1,5 @@
 <?
-session_start();
+if(!isset($_SESSION)) session_start();
 require_once "lib_admin.php";
 require_once "db.php";
 
@@ -9,7 +9,7 @@ $dark_color = "#0a1414";
 
 $test = preg_match("~^test\\.~i",$_SERVER["HTTP_HOST"]);
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>
@@ -24,25 +24,11 @@ $test = preg_match("~^test\\.~i",$_SERVER["HTTP_HOST"]);
 	a:hover {color:#CCFF00;}
 	.header {color:white;background-color:<?=$dark_color?>;font-size:14px;font-weight:bold;padding:4px 10px;margin-bottom:4px;}
 	.topts td {background-color:<?=$light_color?>;}
-	table.t_tabs {font-size:30px;border-style:none;color:#CCFF00;}
-	table.t_tabs td {font-weight:bold;padding:0 20px;}
-	td.t_sel:hover {background-color:<?=$light_color?>;}
 </style>
 </HEAD>
 <BODY>
 
 <script>
-var timerKA = setTimeout("keepAlive();",600000);
-
-function keepAlive()
-{
-	var req = createXMLHttpRequest();
-	req.open ("GET", "keepalive.php");
-	req.send (null);
-	//
-	timerKA = setTimeout("keepAlive();",600000);
-}
-
 var wupload = 0;
 
 function createXMLHttpRequest() 
@@ -73,11 +59,12 @@ function clearBackground()
 	location.reload();
 }
 </script>
+<?
 
-<table class=t_tabs><tr>
-<td class=t_sel><a href='events.php'>EVENTS</a></td><td class=t_sel><a href='competitors.php'>COMPETITORS</a></td><td class=t_sel><a href='results.php'>RESULTS</a></td><td>MISC</td>
-</tr></table>
+require_once "lib_menu.php";
+echoMenu(4);
 
+?>
 <table class=topts width=100% cellspacing=10 cellpadding=5 border=0 style='font-size:12px;'>
 <tr valign=top>
 <td>
@@ -87,6 +74,8 @@ function clearBackground()
 <td>
 <?
 $filename = DIR_UPLOADS.($test?"test_":"")."bg_".$_SESSION["c_id"].".jpg";
+if (substr($_SERVER["REQUEST_URI"],0,6)=="/beta/") 
+	$filename = "../$filename";
 if (file_exists($filename))
 	echo "<img src='$filename' width=200 height=292>";
 else
@@ -94,14 +83,19 @@ else
 ?>
 </td>
 <td width="100%" valign=top>
-
 <div class=header>Upload background image</div>
-<form action="uploadbg.php" target="w_upload" onsubmit="if(wupload && !wupload.closed) wupload.close(); wupload=window.open('', 'w_upload', 'width=200, height=20, location=0, scrollbars=0, resizable=0'); wupload.moveTo((screen.availWidth-200)/2,(screen.availHeight-20)/2);"  method="post" enctype="multipart/form-data">
-<label for="file"><b>Filename</b></label>
-<input type="file" name="file" id="file" />
-<input type="submit" name="submit" value="Submit" />
-<p>Only JPEG images of 100 Kb maximum. Regardless of the dimension and resolution of the uploaded file, the image will be stretched 95 mm width and 138.5 mm height in order to cover all the scorecard's background.
-</form><p>
+<?
+require_once "lib_upload.php";
+$maxSize = 100; // Kb
+echoUploadForm(
+	"uploadbg.php", 
+	array("image/jpeg","image/pjpeg"),
+	$maxSize,
+	"image/*",
+	"window.location.reload();");
+?>
+<p>Only JPEG images of <?=$maxSize?> Kb maximum. Regardless of the dimension and resolution of the uploaded file, the image will be stretched 95 mm width and 138.5 mm height in order to cover all the scorecard's background.
+<p>
 <div class=header>Clear background</div>
 Click&nbsp;&nbsp;<input type=button value=clear onclick='clearBackground();'>&nbsp;&nbsp;to use a default white background.<p>
 
@@ -112,6 +106,7 @@ if (sql_num_rows($ofr))
 ?>
 <div class=header>All opened first round scorecards</div>
 <form action="timessheet.php" target=_blank method="get"><input type=hidden name=aofr value=1>Get &nbsp;&nbsp;<input type=submit value='all scorecards'>&nbsp;&nbsp; for opened first rounds. <span style='font-size:10px;'>(NOTE: You should open rounds as soon as you can.)</span></form>
+<br>
 <?
 }
 ?>

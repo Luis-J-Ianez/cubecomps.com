@@ -56,28 +56,14 @@ $dark_color = "#0a1414";
 	.col_gd {width:40px;}
 	.col_ot {width:120px;}
 	#container {display:inline-block;overflow-y:auto; overflow-x:hidden;}
-	#container, table.TH {-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
+	#container, table.TH {-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
 	table {color:black;font-size:12px;}
 	td, th {padding:0 3px;}
 	th {color:#2a3837;background-color:<?=$light_color?>;}
-	table.t_tabs {font-size:30px;border-style:none;color:#CCFF00;}
-	table.t_tabs td {font-weight:bold;padding:0 20px;}
-	td.t_sel:hover {background-color:<?=$light_color?>;}
 </style>
 </head>
 <body onload='doResize();document.getElementById("WCAid").focus();' onresize='docResize();'> 
 <script>
-
-var timerKA = setTimeout("keepAlive();",600000);
-
-function keepAlive()
-{
-	var req = createXMLHttpRequest();
-	req.open ("GET", "keepalive.php");
-	req.send (null);
-	//
-	timerKA = setTimeout("keepAlive();",600000);
-}
 
 var timerResize;
 
@@ -360,11 +346,10 @@ switch($order)
 }
 $result = strict_query($query);
 $ncomps = sql_num_rows($result);
-?>
 
-<table class=t_tabs><tr>
-<td class=t_sel><a href='events.php'>EVENTS</a></td><td>COMPETITORS</td><td class=t_sel><a href='results.php'>RESULTS</a></td><td class=t_sel><a href='misc.php'>MISC</a></td>
-</tr></table>
+require_once "lib_menu.php";
+echoMenu(1);
+?>
 
 <table class=TH id=T_TH cellspacing=0>
 <tr><th><div class=col_cl><?= $ncomps?columnHeader("id","i"):"" ?></div></th><th><div class=col_wi>WCA id</div></th><th><div class=col_nm><?=columnHeader("name","n")?></div></th><th><div class=col_bd><?=columnHeader("birthday","b")?></div></th><th><div class=col_ct><?=columnHeader("country","c")?></div></th><th><div class=col_gd><?=columnHeader("m/f","g")?></div></th>

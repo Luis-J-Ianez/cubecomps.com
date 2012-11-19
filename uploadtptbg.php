@@ -2,10 +2,11 @@
 /*
  * See comments at lib_upload.php
  */
-define("MAX_FILE_SIZE",100); // Kb
+define("MAX_FILE_SIZE",1024); // Kb
 
 if(!isset($_SESSION)) session_start();
 require_once "lib_ref_admin.php";
+require_once "lib_tpt.php";
 
 $IE = (preg_match("/msie/i",$_SERVER["HTTP_USER_AGENT"]) || preg_match("/internet explorer/i",$_SERVER["HTTP_USER_AGENT"]));
 
@@ -36,18 +37,19 @@ function _error($msg)
 	die();
 }
 
-$test = preg_match("~^test\\.~i",$_SERVER["HTTP_HOST"]);
-
 if ($_FILES["file"]["error"] > 0) _error ("Error: " . $_FILES["file"]["error"]);
-if ($_FILES["file"]["type"] != "image/jpeg" && $_FILES["file"]["type"] != "image/pjpeg") _error ("Error: not a JPEG image (".$_FILES["file"]["type"].")");
+
+$ext = "";
+if ($_FILES["file"]["type"] == "image/gif") $ext = $aTBGExtensions[0];
+elseif ($_FILES["file"]["type"] == "image/jpeg" || $_FILES["file"]["type"] == "image/pjpeg") $ext = $aTBGExtensions[1];
+elseif ($_FILES["file"]["type"] == "image/png") $ext = $aTBGExtensions[2];
+if (!$ext) _error ("Error: not a JPEG, PNG or GIF image (".$_FILES["file"]["type"].")");
+
 $size = $_FILES["file"]["size"] / 1024;
-if ($size > MAX_FILE_SIZE) _error ("Error: file exceeds ".MAX_FILE_SIZE." Kb");
-$img = imagecreatefromjpeg($_FILES["file"]["tmp_name"]);
-if (!$img) _error ("Error: not a real JPEG image in its inside!");
-imagedestroy($img);
+if ($size > MAX_FILE_SIZE) _error ("Error: file size exceeds ".MAX_FILE_SIZE." Kb");
 //
-if (!move_uploaded_file ($_FILES["file"]["tmp_name"], DIR_UPLOADS_ABS.($test?"test_":"")."bg_" . $_SESSION["c_id"] . ".jpg"))
-	_error("Can't copy file!!!");
+if ($error = uploadTemplateBackground($_FILES["file"]["tmp_name"], $ext))
+	_error($error);
 else if (!$IE)
 	die("OK");
 else

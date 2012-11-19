@@ -1,12 +1,12 @@
 <?
-session_start();
+if(!isset($_SESSION)) session_start();
 require_once "lib_admin.php";
 
 $color = "#6b7b71";
 $light_color = "#b0c7b4";
 $dark_color = "#0a1414";
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>

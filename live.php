@@ -120,6 +120,19 @@ function printEvent($event, &$coltimewidth, $print_headers=true,$_cat_id=NULL,$_
 	$nrounds = 4;
 	while ($nrounds>1 && !$event["r$nrounds"]) $nrounds--;
 	//
+	// Do we know who proceeded?
+	if ($round < $nrounds && $event["r".($round+1)."_open"])
+	{
+		$resultac = strict_query("SELECT comp_id FROM $regstable WHERE cat_id=? AND round=?", array($cat_id,$round+1));
+		$actuallyClassified = array();
+		while ($rowac=cased_mysql_fetch_array($resultac))
+			$actuallyClassified[$rowac["comp_id"]] = true;
+		$rowac = null;
+		$resultac = null;
+	}
+	else
+		$actuallyClassified = null;
+	//
 	// $cat_st = cased_mysql_result($category,0,"name")." - round ".$round;
 	$cat_st = cased_mysql_result($category,0,"name")." - ".roundString($round,$nrounds,(cased_mysql_result($category,0,"canhavetimelimit") && $round==1 && $timelimit));
 	if ($timelimit) $cat_st .= " - cutoff ".formatTime($timelimit,1);
@@ -160,11 +173,12 @@ function printEvent($event, &$coltimewidth, $print_headers=true,$_cat_id=NULL,$_
 		"JOIN countries ON (countries.id=$compstable.country_id) ".
 		"WHERE $regstable.cat_id=? AND $regstable.round=? ORDER BY $timestable.t1 IS NULL, $timestable.average='', $timestable.average, $timestable.best, $compstable.name";
 	$list = strict_query($query,array($cat_id,$round));
-	$qualified = (
-		$round<4 && $event["r".($round+1)] ?
-		$event["r".($round+1)."_groupsize"] :
-		3
-		);
+	if (!$actuallyClassified)
+		$qualified = (
+			$round<4 && $event["r".($round+1)] ?
+			$event["r".($round+1)."_groupsize"] :
+			3
+			);
 	$classification = 0;
 	$count = 0;
 	$lasta = "";
@@ -180,16 +194,24 @@ function printEvent($event, &$coltimewidth, $print_headers=true,$_cat_id=NULL,$_
 			$lasta = $row["average"];
 			$lastb = $row["best"];
 		}
-		if ($qualified > 0) // Elegible to proceed?
-		{
-			if ($row["best"] > "A") $qualified = -1;
-		}
+		if (!$actuallyClassified)
+			if ($qualified > 0) // Elegible to proceed?
+			{
+				if ($row["best"] > "A") $qualified = -1;
+			}
 
 		if (!$comp_id || $row["comp_id"]==$comp_id)
 		{
 			echo ($comp_id || $count % 2)?"<tr class=row_even>":"<tr class=row_odd>";
 			echo "<td class=col_cl";
-			if ($classification && $classification<=$qualified) echo " style='background-color:#CCFF00;'";
+			if ($actuallyClassified)
+			{
+				if (array_key_exists($row["comp_id"],$actuallyClassified)) echo " style='background-color:#CCFF00;'";
+			}
+			else
+			{
+				if ($classification && $classification<=$qualified) echo " style='background-color:#CCFF00;'";
+			}
 			echo "><b>$classification</b></td>";
 			if (!$comp_id)
 				echo "<td><div class=col_nm><a href='live.php?cid=$cid&compid=".$row["comp_id"]."'>" .$row["name"]. "</a></div></td><td><div class=col_ct>" .$row["cname"]. "</div></td>";
@@ -407,7 +429,7 @@ if (!array_key_exists("cid", $_GET))
 }
 else
 {
-	session_start();
+	if(!isset($_SESSION)) session_start();
 	$test = preg_match("~^test\\.~i",$_SERVER["HTTP_HOST"]);
 	$cid = _GET_num("cid");
 	$comp_id = _GET_num("compid");
@@ -503,11 +525,11 @@ else
 	{
 ?>
 <script>
-var smTimer = setTimeout("refreshPage();",30000);
+var smTimer = setTimeout("refreshPage();",120000);
 function refreshPage()
 {
 	window.location.reload();
-	smTimer = setTimeout("refreshPage();",30000);
+	smTimer = setTimeout("refreshPage();",120000);
 }
 </script>
 <?
@@ -724,11 +746,11 @@ function expand(id,immediate)
 				print_txt_sch($txt_sch);
 ?>
 <style>
-	table.SCH {color:black;font-size:12px;-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;background-color:white;}
+	table.SCH {color:black;font-size:12px;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;background-color:white;}
 	table.SCH th {color:#FFFFCC;background-color:<?=$light_color?>;}
 	table.SCH td {padding:0 5px;}
-	span.SCH {color:black;position:absolute;padding:0 5px;-moz-box-shadow: 4px 4px 3px <?=$dark_color?>;-webkit-box-shadow: 4px 4px 3px <?=$dark_color?>; box-shadow: 4px 4px 3px <?=$dark_color?>;}
-	span.HR {background-color:red;width:30px;position:absolute;left:-5px;font-size:9px;color:white; -moz-box-shadow: 2px 2px 2px <?=$dark_color?>;-webkit-box-shadow: 2px 2px 2px <?=$dark_color?>; box-shadow: 2px 2px 2px <?=$dark_color?>;}
+	span.SCH {color:black;position:absolute;padding:0 5px;-webkit-box-shadow: 4px 4px 3px <?=$dark_color?>; box-shadow: 4px 4px 3px <?=$dark_color?>;}
+	span.HR {background-color:red;width:30px;position:absolute;left:-5px;font-size:9px;color:white; -webkit-box-shadow: 2px 2px 2px <?=$dark_color?>; box-shadow: 2px 2px 2px <?=$dark_color?>;}
 	.rest {background-color:#ccc;}
 </style>
 <?		
@@ -742,7 +764,7 @@ function expand(id,immediate)
 				printEvent($sevent,$coltimewidth);
 ?>
 <style>
-	table.TH, table.TD {color:black;font-size:12px;-moz-box-shadow: 6px 6px 5px <?=$dark_color?>;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
+	table.TH, table.TD {color:black;font-size:12px;-webkit-box-shadow: 6px 6px 5px <?=$dark_color?>; box-shadow: 6px 6px 5px <?=$dark_color?>;}
 	table.TH th {color:#FFFFCC;background-color:<?=$light_color?>;}
 	.row_odd {background-color:#ddd;}
 	.row_odd:hover {background-color:#bbf;}

@@ -60,7 +60,7 @@ $light_color = "#b0c7b4";
 $dark_color = "#0a1414";
 
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>
@@ -74,9 +74,6 @@ $dark_color = "#0a1414";
 	a:hover {color:#CCFF00;}
 	.header {color:white;background-color:<?=$dark_color?>;font-size:14px;font-weight:bold;padding:4px 10px 4px 10px;margin-bottom:4px;}
 	.tcats td {font-size:12px;width:50%;background-color:<?=$light_color?>;padding:5px 5px 5px 0;}
-	table.t_tabs {font-size:30px;border-style:none;color:#CCFF00;}
-	table.t_tabs td {font-weight:bold;padding:0 20px;}
-	td.t_sel:hover {background-color:<?=$light_color?>;}
 	.nested {font-family:arial,sans-serif;font-size:12px;}
 	.nested td {padding:0;}
 	img {position:relative;top:-5px;}
@@ -85,17 +82,6 @@ $dark_color = "#0a1414";
 <BODY>
 
 <script>
-
-var timerKA = setTimeout("keepAlive();",600000);
-
-function keepAlive()
-{
-	var req = createXMLHttpRequest();
-	req.open ("GET", "keepalive.php");
-	req.send (null);
-	//
-	timerKA = setTimeout("keepAlive();",600000);
-}
 
 function createXMLHttpRequest() 
 {
@@ -214,12 +200,11 @@ function callPage(url)
 }
 
 </script>
-
-<table class=t_tabs><tr>
-<td>EVENTS</td><td class=t_sel><a href='competitors.php'>COMPETITORS</a></td><td class=t_sel><a href='results.php'>RESULTS</a></td><td class=t_sel><a href='misc.php'>MISC</a></td>
-</tr></table>
-
 <?
+
+require_once "lib_menu.php";
+echoMenu(0);
+
 echo "<table class=tcats width=100% cellspacing=10 border=0>";
 $nevents = 0;
 $result = strict_query("SELECT $eventstable.*, categories.name, categories.canhavetimelimit, categories.abbr FROM $eventstable JOIN categories WHERE $eventstable.id=categories.id ORDER BY categories.id");

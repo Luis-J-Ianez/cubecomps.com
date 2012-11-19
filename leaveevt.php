@@ -65,7 +65,7 @@ function error($err)
 {
 	global $color, $light_color, $dark_color;
 ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <HTML>
 <HEAD>
 <TITLE>Operation canceled</TITLE>
@@ -141,7 +141,8 @@ while ($line<$top)
 	$line++;
 }
 if ($old===null) error(4);
-if ($in==$groupsize)
+$new = 0;
+if ($in<=$groupsize)
 {
 	$new = $top-1;
 	while (!cased_mysql_result($list,$new,"flag")) $new--;
@@ -150,7 +151,7 @@ if ($in==$groupsize)
 }
 ?>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE HTML>
 <html>
 <head>
 <TITLE><?=$_SESSION["c_name"]?></TITLE>

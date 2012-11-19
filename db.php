@@ -1,10 +1,8 @@
 <?
 
 require_once "lib.php";
+if(!isset($_SESSION)) session_start();
 
-if(!isset($_SESSION)) {
-	session_start();
-}
 if (!array_key_exists("c_id", $_SESSION))
 {
 ?>

@@ -1,6 +1,6 @@
 <?
 require_once "lib_ref.php";
-session_start();
+if(!isset($_SESSION)) session_start();
 unset($_SESSION["c_id"]);
 unset($_SESSION["c_admin"]);
 unset($_SESSION["c_country"]);
