@@ -108,10 +108,12 @@ class TS extends tFPDF
 			$this->ClippedCell($ts_width-10,30,$_SESSION["c_name"],0,0,"C");
 		}
 		if ($position) $this->TextCL($dx+5,$dy+6,10,3, $position);
-		$this->TextCL($dx+15,$dy+36-5.5,95-7-2-15,7,"category");
-		$this->TextCL($dx+95-9,$dy+36-5.5,7,7,"round");
-		$this->Box($dx+15,$dy+36,94-7-2-15,7,$category);
-		$this->Box($dx+94-7,$dy+36,8,7,$rnd);
+		$this->TextCL($dx,$dy+36-5.5, 95-7-2-15, 7,"category");
+		$this->TextCL($dx+80-9,$dy+36-5.5,7,7,"round");
+		$this->Box($dx,$dy+36,94-7-2-15,7,$category);
+		$this->Box($dx+79-7,$dy+36,8,7,$rnd);
+		$this->TextCL($dx+95-9,$dy+36-5.5,7,7,"group");
+		$this->Box($dx+94-7,$dy+36,8,7,"1");
 		$this->TextCL($dx+15,$dy+48-5.5,12,7,"id");
 		$this->TextCL($dx+29,$dy+48-5.5,95-29,7,"name");
 		$this->Box($dx+15,$dy+48,12,7,$competitor_id);
